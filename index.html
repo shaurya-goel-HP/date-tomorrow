@@ -130,7 +130,7 @@
   let dodges = 0, size = 1.2;
   function dodge(){
     dodges++; hint.textContent = lines[Math.min(dodges-1, lines.length-1)];
-    no.classList.add('free');
+    if (!no.classList.contains('free')) { no.classList.add('free'); document.body.appendChild(no); }
     no.style.left = Math.random()*(innerWidth - no.offsetWidth - 20) + 10 + 'px';
     no.style.top  = Math.random()*(innerHeight - no.offsetHeight - 20) + 10 + 'px';
     size = Math.min(size + .16, 2.4); yes.style.fontSize = size + 'rem';

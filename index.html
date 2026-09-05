@@ -125,25 +125,35 @@
   cookie.addEventListener('click', () => root.classList.add('cracked'));
 
   const no = document.getElementById('no'), yes = document.getElementById('yes'), hint = document.getElementById('hint');
-  const lines = ["are you sure?","that fortune was pretty clear","the green one is right there","I'll pay 🍜",
-                 "extra dumplings if you say yes","this button is being difficult","okay I'll wait"];
+  const lines = ["come on, I know thoda autistic hu but dil se accha hu",
+                 "itna bhi kya naraz kar diya",
+                 "arre ab tak toh samajh jao nahi daba paaoge"];
   let dodges = 0, size = 1.2;
   function dodge(){
-    dodges++; hint.textContent = lines[Math.min(dodges-1, lines.length-1)];
+    dodges++;
     if (!no.classList.contains('free')) { no.classList.add('free'); document.body.appendChild(no); }
     no.style.left = Math.random()*(innerWidth - no.offsetWidth - 20) + 10 + 'px';
     no.style.top  = Math.random()*(innerHeight - no.offsetHeight - 20) + 10 + 'px';
     size = Math.min(size + .16, 2.4); yes.style.fontSize = size + 'rem';
-    if (dodges > 3) no.style.transform = 'scale(' + Math.max(.55, 1 - (dodges-3)*.08) + ')';
+    if (dodges < 4) { hint.textContent = lines[dodges-1]; return; }
+    // 4th time: the No gives up and becomes another Yes
+    hint.textContent = "okay, that one's a yes now too";
+    no.textContent = 'Yes'; no.id = 'yes2'; no.style.transform = '';
+    no.style.background = 'var(--green)'; no.style.color = '#fff'; no.style.boxShadow = '0 5px 0 var(--green-deep)';
+    no.removeEventListener('mouseover', dodge); no.removeEventListener('touchstart', dodgeTouch); no.removeEventListener('click', dodgeClick);
+    no.addEventListener('click', sayYes);
   }
+  function dodgeTouch(e){ e.preventDefault(); dodge(); }
+  function dodgeClick(e){ e.preventDefault(); dodge(); }
   no.addEventListener('mouseover', dodge);
-  no.addEventListener('touchstart', e => { e.preventDefault(); dodge(); }, {passive:false});
-  no.addEventListener('click', e => { e.preventDefault(); dodge(); });
+  no.addEventListener('touchstart', dodgeTouch, {passive:false});
+  no.addEventListener('click', dodgeClick);
 
-  yes.addEventListener('click', () => {
+  function sayYes(){
     document.getElementById('ask').style.display = 'none'; no.remove();
     document.getElementById('done').style.display = 'block'; burst();
-  });
+  }
+  yes.addEventListener('click', sayYes);
 
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   function fit(){ cv.width = innerWidth*devicePixelRatio; cv.height = innerHeight*devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }

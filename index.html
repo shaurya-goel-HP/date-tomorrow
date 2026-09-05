@@ -7,16 +7,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Baloo+2:wght@700;800&display=swap">
 <style>
-  :root{ --ink:#111111; --chalk:#F5F1E8; --chalk-dim:rgba(245,241,232,.62); --yes:#7BD389; --yes-deep:#3E9A4E; --pink:#FF7EA8 }
+  :root{ --ink:#111111; --chalk:#FFF6E9; --chalk-dim:rgba(255,246,233,.72); --yes:#7BD389; --yes-deep:#3E9A4E; --pink:#FF7EA8; --sun:#FFD166; --mint:#8FE3CF }
   *{box-sizing:border-box}
-  body{ margin:0; min-height:100dvh; background:var(--ink); color:var(--chalk); font-family:"Gaegu",cursive;
+  body{ margin:0; min-height:100dvh; background:var(--ink);
+    background-image:radial-gradient(ellipse 60% 45% at 50% 28%, rgba(255,126,168,.22), transparent 70%); color:var(--chalk); font-family:"Gaegu",cursive;
     display:grid; place-items:center; padding:24px; overflow-x:hidden }
   canvas#doodles{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
   canvas#hearts{ position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none }
   main{ position:relative; z-index:2; width:100%; max-width:26rem; text-align:center }
   .sticker{ width:min(240px,60vw); display:block; margin:0 auto 6px; transform:rotate(-4deg);
-    filter:drop-shadow(0 10px 20px rgba(0,0,0,.6)); mix-blend-mode:screen }
-  h1{ font-weight:700; font-size:clamp(2.6rem,11vw,4rem); line-height:.95; margin:0 0 12px; letter-spacing:.01em; text-wrap:balance }
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.6)); mix-blend-mode:screen;
+    animation:bob 3s ease-in-out infinite }
+  @keyframes bob{ 0%,100%{ transform:rotate(-4deg) translateY(0) } 50%{ transform:rotate(-2deg) translateY(-8px) } }
+  h1{ font-weight:700; font-size:clamp(2.6rem,11vw,4rem); line-height:.95; margin:0 0 12px; letter-spacing:.01em; text-wrap:balance; color:var(--sun) }
   .promise{ font-size:1.45rem; line-height:1.25; margin:0 0 26px; color:var(--chalk-dim) }
   .promise b{ color:var(--pink); font-weight:700 }
   .btns{ display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap; min-height:70px }
@@ -25,7 +28,7 @@
   button.choice:focus-visible{ outline:3px solid var(--chalk); outline-offset:3px }
   #yes{ background:var(--yes); color:var(--ink); box-shadow:0 5px 0 var(--yes-deep) }
   #yes:hover{ transform:translateY(-2px) }
-  #no{ background:transparent; color:var(--chalk); box-shadow:inset 0 0 0 3px var(--chalk-dim) }
+  #no{ background:transparent; color:var(--chalk); box-shadow:inset 0 0 0 3px var(--mint) }
   #no.free{ position:fixed; z-index:5; transition:left .25s, top .25s }
   .bubble{ position:fixed; z-index:6; max-width:230px; padding:8px 12px; background:var(--chalk); color:var(--ink);
     font-family:"Gaegu",cursive; font-weight:700; font-size:1.25rem; line-height:1.15; border-radius:12px; text-align:center;
@@ -34,7 +37,7 @@
   .bubble.below::after{ bottom:auto; top:-8px; border-top-color:transparent; border-bottom:8px solid var(--chalk); border-top:0 }
   #done{ display:none }
   .ps{ font-size:1.2rem; color:var(--chalk-dim); margin:18px 0 0 }
-  @media (prefers-reduced-motion:reduce){ #no.free,.bubble{transition:none} }
+  @media (prefers-reduced-motion:reduce){ #no.free,.bubble{transition:none} .sticker{animation:none} }
 </style>
 </head>
 <body>
@@ -64,12 +67,13 @@
   const dc = document.getElementById('doodles'), dx = dc.getContext('2d');
   function doodles(){
     const dpr = devicePixelRatio || 1; dc.width = innerWidth*dpr; dc.height = innerHeight*dpr; dx.setTransform(dpr,0,0,dpr,0,0);
-    dx.clearRect(0,0,innerWidth,innerHeight); dx.strokeStyle = 'rgba(245,241,232,.13)'; dx.lineWidth = 2; dx.lineCap = 'round'; dx.lineJoin='round';
+    dx.clearRect(0,0,innerWidth,innerHeight); dx.lineWidth = 2.2;
+    const palette = ['rgba(255,126,168,.55)','rgba(255,209,102,.5)','rgba(143,227,207,.5)','rgba(255,246,233,.28)']; dx.lineCap = 'round'; dx.lineJoin='round';
     let seed = 7; const rnd = () => (seed = (seed*9301+49297) % 233280) / 233280;
     const kinds = [heart, bowl, dumpling, squiggle, star, chopsticks];
     const n = Math.round(innerWidth*innerHeight/26000);
     for (let i=0;i<n;i++){ const x = rnd()*innerWidth, y = rnd()*innerHeight, s = 14 + rnd()*18;
-      dx.save(); dx.translate(x,y); dx.rotate((rnd()-.5)*1.2); kinds[i % kinds.length](s); dx.restore(); }
+      dx.save(); dx.translate(x,y); dx.rotate((rnd()-.5)*1.2); dx.strokeStyle = palette[i % palette.length]; kinds[i % kinds.length](s); dx.restore(); }
     function heart(r){ dx.beginPath(); dx.moveTo(0,r*.35); dx.bezierCurveTo(-r,-r*.4,-r*.45,-r*1.1,0,-r*.45); dx.bezierCurveTo(r*.45,-r*1.1,r,-r*.4,0,r*.35); dx.stroke(); }
     function bowl(r){ dx.beginPath(); dx.moveTo(-r,0); dx.quadraticCurveTo(0,r*1.3,r,0); dx.closePath(); dx.stroke();
       dx.beginPath(); dx.moveTo(-r*.6,-r*.5); dx.bezierCurveTo(-r*.3,-r*.9,0,-r*.2,r*.3,-r*.8); dx.stroke(); }

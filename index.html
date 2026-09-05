@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Date Tomorrow?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700&display=swap">
+<style>
+  :root{
+    --peach:#FFF1E4; --berry:#4A1F33; --pink:#FF6FA5; --pink-deep:#E0507F;
+    --mint:#9FE3C9; --butter:#FFD86B; --cream:#FFFBF6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--peach); color:var(--berry);
+    font-family:"Nunito","Trebuchet MS",sans-serif; font-weight:500;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(159,227,201,.55) 0 120px, transparent 121px),
+      radial-gradient(circle at 88% 82%, rgba(255,216,107,.6) 0 160px, transparent 161px),
+      radial-gradient(circle at 85% 14%, rgba(255,111,165,.28) 0 90px, transparent 91px);
+    display:grid; place-items:center; overflow:hidden; min-height:100dvh; padding:24px;
+  }
+  main{ text-align:center; max-width:34rem; width:100%; position:relative; z-index:2 }
+  .buddy{ width:150px; height:130px; margin:0 auto 18px; position:relative;
+    animation:bob 2.6s ease-in-out infinite; }
+  .buddy .body{ position:absolute; inset:0; background:var(--pink);
+    border-radius:52% 48% 50% 50% / 58% 58% 42% 42%; box-shadow:inset -10px -12px 0 rgba(0,0,0,.08); }
+  .buddy .eye{ position:absolute; top:46px; width:22px; height:26px; background:#fff; border-radius:50%; }
+  .buddy .eye::after{ content:""; position:absolute; left:8px; top:8px; width:10px; height:12px; background:var(--berry); border-radius:50%;
+    animation:look 5s ease-in-out infinite; }
+  .buddy .eye.l{ left:44px } .buddy .eye.r{ right:44px }
+  .buddy .cheek{ position:absolute; top:76px; width:18px; height:10px; background:rgba(255,255,255,.55); border-radius:50%; }
+  .buddy .cheek.l{ left:34px } .buddy .cheek.r{ right:34px }
+  .buddy .mouth{ position:absolute; left:50%; top:80px; width:26px; height:14px; margin-left:-13px;
+    border-bottom:4px solid var(--berry); border-radius:0 0 20px 20px; }
+  .buddy .heart{ position:absolute; right:-6px; top:-8px; font-size:30px; animation:pop 2.6s ease-in-out infinite; }
+  .eyebrow{ font-size:.85rem; letter-spacing:.14em; text-transform:uppercase; opacity:.7; margin:0 0 8px }
+  h1{ font-family:"Fredoka","Arial Rounded MT Bold",sans-serif; font-weight:700; font-size:clamp(2rem,7vw,3.2rem);
+    line-height:1.05; margin:0 0 12px; text-wrap:balance }
+  h1 em{ font-style:normal; color:var(--pink-deep) }
+  p.sub{ font-size:1.1rem; margin:0 0 30px; opacity:.85 }
+  .btns{ display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap; min-height:80px; position:relative }
+  button{ font:inherit; font-family:"Fredoka",sans-serif; font-weight:700; font-size:1.25rem; border:0; cursor:pointer;
+    padding:14px 34px; border-radius:999px; transition:transform .15s ease, font-size .2s ease; }
+  button:focus-visible{ outline:3px solid var(--berry); outline-offset:3px }
+  #yes{ background:var(--pink); color:#fff; box-shadow:0 6px 0 var(--pink-deep) }
+  #yes:hover{ transform:translateY(-2px) }
+  #no{ background:var(--cream); color:var(--berry); box-shadow:0 6px 0 #E9D6C8 }
+  #no.free{ position:fixed; z-index:5; transition:left .25s ease, top .25s ease }
+  .hint{ margin-top:18px; font-size:.95rem; opacity:.7; min-height:1.4em }
+  #done{ display:none }
+  #done h1{ font-size:clamp(2.4rem,9vw,4rem) }
+  canvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1 }
+  @keyframes bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes pop{ 0%,100%{transform:scale(1) rotate(-10deg)} 50%{transform:scale(1.25) rotate(8deg)} }
+  @keyframes look{ 0%,40%,100%{transform:translate(0,0)} 50%,90%{transform:translate(3px,-1px)} }
+  @media (prefers-reduced-motion:reduce){ .buddy,.buddy .heart,.buddy .eye::after{animation:none} #no.free{transition:none} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<main>
+  <div class="buddy" aria-hidden="true">
+    <div class="body"></div>
+    <div class="eye l"></div><div class="eye r"></div>
+    <div class="cheek l"></div><div class="cheek r"></div>
+    <div class="mouth"></div>
+    <div class="heart">💗</div>
+  </div>
+
+  <section id="ask">
+    <p class="eyebrow">a very important question</p>
+    <h1>Will you go on a <em>date</em> with me tomorrow?</h1>
+    <p class="sub">no pressure. okay, a little pressure.</p>
+    <div class="btns">
+      <button id="yes">Yes!</button>
+      <button id="no">No</button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <section id="done">
+    <p class="eyebrow">it's a date</p>
+    <h1>Yay! <em>See you tomorrow</em> 🥳</h1>
+    <p class="sub">I'll text you the time &amp; place. Wear something cute (you always do).</p>
+  </section>
+</main>
+
+<script>
+  const no = document.getElementById('no'), yes = document.getElementById('yes'),
+        hint = document.getElementById('hint');
+  const lines = ["are you sure? 🥺","think about it…","the other button is right there","pretty please?",
+                 "I'll bring snacks 🍪","last chance!","okay this one's just being difficult","fine, I'll wait 💗"];
+  let dodges = 0, yesSize = 1.25;
+
+  function dodge(){
+    dodges++;
+    hint.textContent = lines[Math.min(dodges-1, lines.length-1)];
+    no.classList.add('free');
+    const w = no.offsetWidth, h = no.offsetHeight;
+    no.style.left = Math.random()*(innerWidth - w - 20) + 10 + 'px';
+    no.style.top  = Math.random()*(innerHeight - h - 20) + 10 + 'px';
+    yesSize = Math.min(yesSize + .18, 2.6);
+    yes.style.fontSize = yesSize + 'rem';
+    if (dodges > 3) no.style.transform = 'scale(' + Math.max(.55, 1 - (dodges-3)*.08) + ')';
+  }
+  no.addEventListener('mouseover', dodge);
+  no.addEventListener('touchstart', e => { e.preventDefault(); dodge(); }, {passive:false});
+  no.addEventListener('click', e => { e.preventDefault(); dodge(); });
+
+  yes.addEventListener('click', () => {
+    document.getElementById('ask').style.display = 'none';
+    no.remove();
+    document.getElementById('done').style.display = 'block';
+    document.querySelector('.buddy .mouth').style.cssText = 'height:18px;width:30px;margin-left:-15px;background:var(--berry);border:0;border-radius:0 0 30px 30px';
+    burst();
+  });
+
+  // hearts confetti
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  function size(){ cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+  size(); addEventListener('resize', size);
+  const cols = ['#FF6FA5','#E0507F','#FFD86B','#9FE3C9','#FFFFFF'];
+  let parts = [];
+  function burst(){
+    for (let i=0;i<160;i++) parts.push({ x:innerWidth/2, y:innerHeight/2, vx:(Math.random()-.5)*16, vy:-Math.random()*16-4,
+      r:6+Math.random()*10, c:cols[i%cols.length], a:Math.random()*6.28, va:(Math.random()-.5)*.3, life:1 });
+    requestAnimationFrame(tick);
+  }
+  function heart(x,y,r,a,c){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.fillStyle=c; ctx.beginPath();
+    ctx.moveTo(0,r*.3); ctx.bezierCurveTo(-r,-r*.5,-r*.4,-r*1.1,0,-r*.4); ctx.bezierCurveTo(r*.4,-r*1.1,r,-r*.5,0,r*.3); ctx.fill(); ctx.restore(); }
+  function tick(){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    parts = parts.filter(p => p.life > 0);
+    for (const p of parts){ p.vy += .35; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.a += p.va; if (p.y > innerHeight+30) p.life = 0;
+      heart(p.x,p.y,p.r,p.a,p.c); }
+    if (parts.length) requestAnimationFrame(tick);
+  }
+</script>
+</body>
+</html>

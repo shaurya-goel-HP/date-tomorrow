@@ -30,8 +30,8 @@
   .cookie:focus-visible{ outline:3px solid var(--paper); outline-offset:8px; border-radius:50% }
   .cookie svg{ width:100%; height:100%; overflow:visible }
   .half{ transition:transform .6s cubic-bezier(.3,1.4,.5,1); transform-origin:110px 75px }
-  .cracked .half.l{ transform:translate(-110px,30px) rotate(-30deg) }
-  .cracked .half.r{ transform:translate(110px,30px) rotate(30deg) }
+  .cracked .half.l{ transform:translate(-34px,18px) rotate(-14deg) }
+  .cracked .half.r{ transform:translate(34px,18px) rotate(14deg) }
   .cracked .cookie{ pointer-events:none }
   .tap{ position:absolute; bottom:-6px; font-family:"Gaegu",cursive; font-size:1.35rem; opacity:.9;
     animation:nudge 1.6s ease-in-out infinite }
@@ -60,7 +60,12 @@
   #yes:hover{ transform:translateY(-2px) }
   #no{ background:#fff; color:var(--ink); box-shadow:0 5px 0 #DCCFC0 }
   #no.free{ position:fixed; z-index:5; transition:left .25s, top .25s }
-  .hint{ font-family:"Gaegu",cursive; font-size:1.3rem; margin:12px 0 0; min-height:1.3em; color:var(--red-deep) }
+  .hint{ display:none }
+  .bubble{ position:fixed; z-index:6; max-width:220px; padding:8px 12px; background:var(--paper); color:var(--red-deep);
+    font-family:"Gaegu",cursive; font-weight:700; font-size:1.2rem; line-height:1.15; border-radius:12px; text-align:center;
+    box-shadow:0 6px 16px rgba(0,0,0,.3); transition:left .25s, top .25s; pointer-events:none }
+  .bubble::after{ content:""; position:absolute; left:50%; bottom:-8px; margin-left:-8px; border:8px solid transparent;
+    border-top-color:var(--paper); border-bottom:0 }
   .lucky{ margin:18px 0 0; font-size:.85rem; opacity:.6 }
 
   #done{ display:none }
@@ -68,7 +73,7 @@
   canvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1 }
 
   @keyframes nudge{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-  @media (prefers-reduced-motion:reduce){ .tap{animation:none} .half,.slip,.sticker,#no.free{transition:none} }
+  @media (prefers-reduced-motion:reduce){ .tap{animation:none} .half,.slip,.sticker,#no.free,.bubble{transition:none} }
 </style>
 </head>
 <body>
@@ -129,15 +134,24 @@
                  "itna bhi kya naraz kar diya",
                  "arre ab tak toh samajh jao nahi daba paaoge"];
   let dodges = 0, size = 1.2;
+  const bubble = document.createElement('div'); bubble.className = 'bubble';
+  function say(text, x, y){
+    bubble.textContent = text; if (!bubble.isConnected) document.body.appendChild(bubble);
+    const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+    let bx = x + no.offsetWidth/2 - bw/2, by = y - bh - 14;
+    bx = Math.max(8, Math.min(bx, innerWidth - bw - 8));
+    if (by < 8) by = y + no.offsetHeight + 14;
+    bubble.style.left = bx + 'px'; bubble.style.top = by + 'px';
+  }
   function dodge(){
     dodges++;
     if (!no.classList.contains('free')) { no.classList.add('free'); document.body.appendChild(no); }
-    no.style.left = Math.random()*(innerWidth - no.offsetWidth - 20) + 10 + 'px';
-    no.style.top  = Math.random()*(innerHeight - no.offsetHeight - 20) + 10 + 'px';
+    const x = Math.random()*(innerWidth - no.offsetWidth - 20) + 10, y = Math.random()*(innerHeight - no.offsetHeight - 60) + 50;
+    no.style.left = x + 'px'; no.style.top = y + 'px';
     size = Math.min(size + .16, 2.4); yes.style.fontSize = size + 'rem';
-    if (dodges < 4) { hint.textContent = lines[dodges-1]; return; }
+    if (dodges < 4) { say(lines[dodges-1], x, y); return; }
     // 4th time: the No gives up and becomes another Yes
-    hint.textContent = "okay, that one's a yes now too";
+    say("okay, that one's a yes now too", x, y);
     no.textContent = 'Yes'; no.id = 'yes2'; no.style.transform = '';
     no.style.background = 'var(--green)'; no.style.color = '#fff'; no.style.boxShadow = '0 5px 0 var(--green-deep)';
     no.removeEventListener('mouseover', dodge); no.removeEventListener('touchstart', dodgeTouch); no.removeEventListener('click', dodgeClick);
@@ -150,7 +164,7 @@
   no.addEventListener('click', dodgeClick);
 
   function sayYes(){
-    document.getElementById('ask').style.display = 'none'; no.remove();
+    document.getElementById('ask').style.display = 'none'; no.remove(); bubble.remove();
     document.getElementById('done').style.display = 'block'; burst();
   }
   yes.addEventListener('click', sayYes);

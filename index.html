@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Baloo+2:wght@700;800&display=swap">
 <style>
-  :root{ --ink:#111111; --chalk:#FFF6E9; --chalk-dim:rgba(255,246,233,.72); --yes:#7BD389; --yes-deep:#3E9A4E; --pink:#FF7EA8; --sun:#FFD166; --mint:#8FE3CF }
+  :root{ --ink:#FFE38F; --chalk:#3B1D3A; --chalk-dim:rgba(59,29,58,.75); --yes:#3E9A4E; --yes-deep:#2A6E36; --pink:#E8457F; --sun:#3B1D3A; --mint:#1F8F78 }
   *{box-sizing:border-box}
   body{ margin:0; min-height:100dvh; background:var(--ink);
     background-image:radial-gradient(ellipse 60% 45% at 50% 28%, rgba(255,126,168,.22), transparent 70%); color:var(--chalk); font-family:"Gaegu",cursive;
@@ -15,8 +15,8 @@
   canvas#doodles{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
   canvas#hearts{ position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none }
   main{ position:relative; z-index:2; width:100%; max-width:26rem; text-align:center }
-  .sticker{ width:min(240px,60vw); display:block; margin:0 auto 6px; transform:rotate(-4deg);
-    filter:drop-shadow(0 10px 20px rgba(0,0,0,.6)); mix-blend-mode:screen;
+  .sticker{ width:min(230px,58vw); display:block; margin:0 auto 18px; transform:rotate(-4deg);
+    border:6px solid #fff; border-radius:22px; box-shadow:0 14px 28px rgba(59,29,58,.28);
     animation:bob 3s ease-in-out infinite }
   @keyframes bob{ 0%,100%{ transform:rotate(-4deg) translateY(0) } 50%{ transform:rotate(-2deg) translateY(-8px) } }
   h1{ font-weight:700; font-size:clamp(2.6rem,11vw,4rem); line-height:.95; margin:0 0 12px; letter-spacing:.01em; text-wrap:balance; color:var(--sun) }
@@ -26,15 +26,15 @@
   button.choice{ font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.3rem; border:0; cursor:pointer;
     padding:12px 34px; border-radius:16px; transition:transform .15s, font-size .2s }
   button.choice:focus-visible{ outline:3px solid var(--chalk); outline-offset:3px }
-  #yes{ background:var(--yes); color:var(--ink); box-shadow:0 5px 0 var(--yes-deep) }
+  #yes{ background:var(--yes); color:#fff; box-shadow:0 5px 0 var(--yes-deep) }
   #yes:hover{ transform:translateY(-2px) }
   #no{ background:transparent; color:var(--chalk); box-shadow:inset 0 0 0 3px var(--mint) }
   #no.free{ position:fixed; z-index:5; transition:left .25s, top .25s }
-  .bubble{ position:fixed; z-index:6; max-width:230px; padding:8px 12px; background:var(--chalk); color:var(--ink);
+  .bubble{ position:fixed; z-index:6; max-width:230px; padding:8px 12px; background:#fff; color:var(--chalk);
     font-family:"Gaegu",cursive; font-weight:700; font-size:1.25rem; line-height:1.15; border-radius:12px; text-align:center;
-    box-shadow:0 6px 16px rgba(0,0,0,.5); transition:left .25s, top .25s; pointer-events:none }
-  .bubble::after{ content:""; position:absolute; left:50%; bottom:-8px; margin-left:-8px; border:8px solid transparent; border-top-color:var(--chalk); border-bottom:0 }
-  .bubble.below::after{ bottom:auto; top:-8px; border-top-color:transparent; border-bottom:8px solid var(--chalk); border-top:0 }
+    box-shadow:0 6px 16px rgba(59,29,58,.3); transition:left .25s, top .25s; pointer-events:none }
+  .bubble::after{ content:""; position:absolute; left:50%; bottom:-8px; margin-left:-8px; border:8px solid transparent; border-top-color:#fff; border-bottom:0 }
+  .bubble.below::after{ bottom:auto; top:-8px; border-top-color:transparent; border-bottom:8px solid #fff; border-top:0 }
   #done{ display:none }
   .ps{ font-size:1.2rem; color:var(--chalk-dim); margin:18px 0 0 }
   @media (prefers-reduced-motion:reduce){ #no.free,.bubble{transition:none} .sticker{animation:none} }
@@ -58,7 +58,7 @@
   <section id="done">
     <h1>It's a date.</h1>
     <p class="promise">Kal milte hain. Noodles or dumplings, your pick. I'll text you the time.</p>
-    <p class="ps">ps: you looked exactly like this sticker when you said yes, I'm sure of it (hopefully 🤞).</p>
+    <p class="ps">(ps: hopefully you looked exactly like this sticker when you said yes 🤞)</p>
   </section>
 </main>
 
@@ -68,7 +68,7 @@
   function doodles(){
     const dpr = devicePixelRatio || 1; dc.width = innerWidth*dpr; dc.height = innerHeight*dpr; dx.setTransform(dpr,0,0,dpr,0,0);
     dx.clearRect(0,0,innerWidth,innerHeight); dx.lineWidth = 2.2;
-    const palette = ['rgba(255,126,168,.55)','rgba(255,209,102,.5)','rgba(143,227,207,.5)','rgba(255,246,233,.28)']; dx.lineCap = 'round'; dx.lineJoin='round';
+    const palette = ['rgba(232,69,127,.45)','rgba(59,29,58,.28)','rgba(31,143,120,.45)','rgba(255,255,255,.7)']; dx.lineCap = 'round'; dx.lineJoin='round';
     let seed = 7; const rnd = () => (seed = (seed*9301+49297) % 233280) / 233280;
     const kinds = [heart, bowl, dumpling, squiggle, star, chopsticks];
     const n = Math.round(innerWidth*innerHeight/26000);
@@ -112,7 +112,7 @@
     if (dodges < 4) { say(lines[dodges-1], x, y); return; }
     say("okay, that one's a yes now too", x, y);
     no.textContent = 'Yes'; no.id = 'yes2';
-    no.style.background = 'var(--yes)'; no.style.color = 'var(--ink)'; no.style.boxShadow = '0 5px 0 var(--yes-deep)';
+    no.style.background = 'var(--yes)'; no.style.color = '#fff'; no.style.boxShadow = '0 5px 0 var(--yes-deep)';
     no.removeEventListener('mouseover', dodge); no.removeEventListener('touchstart', dodgeTouch); no.removeEventListener('click', dodgeClick);
     no.addEventListener('click', sayYes);
   }
@@ -132,7 +132,7 @@
   const cv = document.getElementById('hearts'), ctx = cv.getContext('2d');
   function fit(){ cv.width = innerWidth*devicePixelRatio; cv.height = innerHeight*devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
   fit(); addEventListener('resize', fit);
-  const cols = ['#FF7EA8','#F5F1E8','#7BD389','#FFD166'];
+  const cols = ['#E8457F','#FFFFFF','#3E9A4E','#3B1D3A'];
   let parts = [];
   function burst(){
     for (let i=0;i<170;i++) parts.push({ x:innerWidth/2, y:innerHeight/2, vx:(Math.random()-.5)*16, vy:-Math.random()*16-4,

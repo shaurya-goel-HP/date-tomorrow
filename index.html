@@ -5,155 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Date Tomorrow?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Gaegu:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Baloo+2:wght@700;800&display=swap">
 <style>
-  :root{
-    --red:#B5323B; --red-deep:#8E2229; --gold:#E9B44C; --gold-deep:#C48A2A;
-    --paper:#FFF8EE; --ink:#35192A; --green:#4F9A77; --green-deep:#3A7A5C;
-  }
+  :root{ --ink:#111111; --chalk:#F5F1E8; --chalk-dim:rgba(245,241,232,.62); --yes:#7BD389; --yes-deep:#3E9A4E; --pink:#FF7EA8 }
   *{box-sizing:border-box}
-  body{
-    margin:0; min-height:100dvh; background:var(--red); color:var(--paper);
-    font-family:"Baloo 2","Arial Rounded MT Bold",sans-serif; font-weight:600;
-    background-image:radial-gradient(ellipse at 50% 110%, var(--red-deep) 0%, transparent 60%);
-    display:grid; place-items:center; padding:24px; overflow-x:hidden;
-  }
-  main{ width:100%; max-width:30rem; text-align:center }
-  h1{ font-size:clamp(1.8rem,6vw,2.6rem); font-weight:800; line-height:1.1; margin:0 0 6px; text-wrap:balance }
-  .lead{ margin:0 0 28px; font-size:1.1rem; opacity:.85 }
-
-  /* cookie */
-  .stage{ position:relative; height:240px; display:grid; place-items:center }
-  .cookie{ position:absolute; width:220px; height:150px; cursor:pointer; background:none; border:0; padding:0;
-    transition:transform .2s; filter:drop-shadow(0 14px 18px rgba(0,0,0,.35)) }
-  .cookie:hover{ transform:scale(1.04) rotate(-2deg) }
-  .cookie:focus-visible{ outline:3px solid var(--paper); outline-offset:8px; border-radius:50% }
-  .cookie svg{ width:100%; height:100%; overflow:visible }
-  .half{ transition:transform .6s cubic-bezier(.3,1.4,.5,1); transform-origin:110px 75px }
-  .cracked .half.l{ transform:translate(-34px,18px) rotate(-14deg) }
-  .cracked .half.r{ transform:translate(34px,18px) rotate(14deg) }
-  .cracked .cookie{ pointer-events:none }
-  .tap{ position:absolute; bottom:-6px; font-family:"Gaegu",cursive; font-size:1.35rem; opacity:.9;
-    animation:nudge 1.6s ease-in-out infinite }
-  .cracked .tap{ display:none }
-
-  /* slip */
-  .slip{ position:relative; background:var(--paper); color:var(--ink); padding:44px 26px 30px; margin:0 auto;
-    transform:scale(.2) translateY(-120px); opacity:0; transition:transform .7s cubic-bezier(.3,1.3,.5,1) .25s, opacity .3s .25s;
-    box-shadow:0 20px 40px rgba(0,0,0,.35);
-    clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),97% 100%,94% calc(100% - 8px),91% 100%,88% calc(100% - 8px),85% 100%,82% calc(100% - 8px),79% 100%,76% calc(100% - 8px),73% 100%,70% calc(100% - 8px),67% 100%,64% calc(100% - 8px),61% 100%,58% calc(100% - 8px),55% 100%,52% calc(100% - 8px),49% 100%,46% calc(100% - 8px),43% 100%,40% calc(100% - 8px),37% 100%,34% calc(100% - 8px),31% 100%,28% calc(100% - 8px),25% 100%,22% calc(100% - 8px),19% 100%,16% calc(100% - 8px),13% 100%,10% calc(100% - 8px),7% 100%,4% calc(100% - 8px),0 100%);
-  }
-  .cracked .slip{ transform:none; opacity:1 }
-  .slip .q{ font-family:"Gaegu",cursive; font-weight:700; font-size:clamp(2rem,8vw,2.7rem); line-height:1.05; margin:0 0 14px; text-wrap:balance }
-  .slip .promise{ font-family:"Gaegu",cursive; font-size:1.35rem; line-height:1.25; margin:0 0 22px; color:var(--red-deep) }
-  .slip .promise s{ opacity:.55 }
-  .slipwrap{ position:relative; margin-top:8px }
-  .sticker{ position:absolute; top:-66px; right:-36px; width:108px; z-index:2; opacity:0; transition:opacity .3s .8s, transform .5s cubic-bezier(.3,1.4,.5,1) .8s; border-radius:16px; border:4px solid #fff;
-    transform:rotate(9deg) scale(.6); box-shadow:0 8px 18px rgba(0,0,0,.25) }
-  .cracked .sticker{ opacity:1; transform:rotate(9deg) scale(1) }
-  .seam{ transition:opacity .2s } .cracked .seam{ opacity:0 }
-  .btns{ display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; min-height:64px }
-  button.choice{ font:inherit; font-weight:800; font-size:1.2rem; border:0; cursor:pointer; padding:12px 30px; border-radius:14px;
-    transition:transform .15s, font-size .2s }
-  button.choice:focus-visible{ outline:3px solid var(--ink); outline-offset:3px }
-  #yes{ background:var(--green); color:#fff; box-shadow:0 5px 0 var(--green-deep) }
+  body{ margin:0; min-height:100dvh; background:var(--ink); color:var(--chalk); font-family:"Gaegu",cursive;
+    display:grid; place-items:center; padding:24px; overflow-x:hidden }
+  canvas#doodles{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
+  canvas#hearts{ position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none }
+  main{ position:relative; z-index:2; width:100%; max-width:26rem; text-align:center }
+  .sticker{ width:min(240px,60vw); display:block; margin:0 auto 6px; transform:rotate(-4deg);
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.6)); mix-blend-mode:screen }
+  h1{ font-weight:700; font-size:clamp(2.6rem,11vw,4rem); line-height:.95; margin:0 0 12px; letter-spacing:.01em; text-wrap:balance }
+  .promise{ font-size:1.45rem; line-height:1.25; margin:0 0 26px; color:var(--chalk-dim) }
+  .promise b{ color:var(--pink); font-weight:700 }
+  .btns{ display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap; min-height:70px }
+  button.choice{ font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.3rem; border:0; cursor:pointer;
+    padding:12px 34px; border-radius:16px; transition:transform .15s, font-size .2s }
+  button.choice:focus-visible{ outline:3px solid var(--chalk); outline-offset:3px }
+  #yes{ background:var(--yes); color:var(--ink); box-shadow:0 5px 0 var(--yes-deep) }
   #yes:hover{ transform:translateY(-2px) }
-  #no{ background:#fff; color:var(--ink); box-shadow:0 5px 0 #DCCFC0 }
+  #no{ background:transparent; color:var(--chalk); box-shadow:inset 0 0 0 3px var(--chalk-dim) }
   #no.free{ position:fixed; z-index:5; transition:left .25s, top .25s }
-  .hint{ display:none }
-  .bubble{ position:fixed; z-index:6; max-width:220px; padding:8px 12px; background:var(--paper); color:var(--red-deep);
-    font-family:"Gaegu",cursive; font-weight:700; font-size:1.2rem; line-height:1.15; border-radius:12px; text-align:center;
-    box-shadow:0 6px 16px rgba(0,0,0,.3); transition:left .25s, top .25s; pointer-events:none }
-  .bubble::after{ content:""; position:absolute; left:50%; bottom:-8px; margin-left:-8px; border:8px solid transparent;
-    border-top-color:var(--paper); border-bottom:0 }
-  .lucky{ margin:18px 0 0; font-size:.85rem; opacity:.6 }
-
+  .bubble{ position:fixed; z-index:6; max-width:230px; padding:8px 12px; background:var(--chalk); color:var(--ink);
+    font-family:"Gaegu",cursive; font-weight:700; font-size:1.25rem; line-height:1.15; border-radius:12px; text-align:center;
+    box-shadow:0 6px 16px rgba(0,0,0,.5); transition:left .25s, top .25s; pointer-events:none }
+  .bubble::after{ content:""; position:absolute; left:50%; bottom:-8px; margin-left:-8px; border:8px solid transparent; border-top-color:var(--chalk); border-bottom:0 }
+  .bubble.below::after{ bottom:auto; top:-8px; border-top-color:transparent; border-bottom:8px solid var(--chalk); border-top:0 }
   #done{ display:none }
-  #done .q{ font-size:clamp(2.2rem,9vw,3.2rem) }
-  canvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1 }
-
-  @keyframes nudge{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-  @media (prefers-reduced-motion:reduce){ .tap{animation:none} .half,.slip,.sticker,#no.free,.bubble{transition:none} }
+  .ps{ font-size:1.2rem; color:var(--chalk-dim); margin:18px 0 0 }
+  @media (prefers-reduced-motion:reduce){ #no.free,.bubble{transition:none} }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<main id="root">
-  <h1>I got you a fortune cookie.</h1>
-  <p class="lead">Go on, open it.</p>
-
-  <div class="stage">
-    <button class="cookie" id="cookie" aria-label="Crack the fortune cookie">
-      <svg viewBox="0 0 220 150" aria-hidden="true">
-        <defs>
-          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#F3C86A"/><stop offset="1" stop-color="#C48A2A"/>
-          </linearGradient>
-        </defs>
-        <g class="half l">
-          <path d="M110 20 C60 10 15 45 20 95 C24 130 60 135 110 118 Z" fill="url(#g)"/>
-          <path d="M110 40 C75 40 45 65 48 95" fill="none" stroke="#B87A22" stroke-width="3" stroke-linecap="round"/>
-        </g>
-        <g class="half r">
-          <path d="M110 20 C160 10 205 45 200 95 C196 130 160 135 110 118 Z" fill="url(#g)"/>
-          <path d="M110 40 C145 40 175 65 172 95" fill="none" stroke="#B87A22" stroke-width="3" stroke-linecap="round"/>
-        </g>
-        <path class="seam" d="M110 20 C104 50 104 90 110 118" fill="none" stroke="#A8701C" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <span class="tap">tap to crack</span>
-  </div>
-
-  <div class="slipwrap">
+<canvas id="doodles"></canvas>
+<canvas id="hearts"></canvas>
+<main>
   <img class="sticker" src="sticker.png" alt="you, laughing">
-  <section class="slip" id="slip">
-    <div id="ask">
-      <p class="q">Will you go on a date with me tomorrow?</p>
-      <p class="promise">Asian food, promise. Not too heavy (hopefully).</p>
-      <div class="btns">
-        <button class="choice" id="yes">Yes, let's go</button>
-        <button class="choice" id="no">No</button>
-      </div>
-      <p class="hint" id="hint"></p>
-    </div>
-    <div id="done">
-      <p class="q">It's a date.</p>
-      <p class="promise">See you tomorrow. Noodles or dumplings, your pick. I'll text the time.</p>
-      <p class="lucky">lucky numbers: 1, 2, you, me</p>
+
+  <section id="ask">
+    <h1>Will you go on a date with me tomorrow?</h1>
+    <p class="promise">Asian food, promise. <b>Not too heavy</b> (hopefully).</p>
+    <div class="btns">
+      <button class="choice" id="yes">Yes</button>
+      <button class="choice" id="no">No</button>
     </div>
   </section>
-  </div>
+
+  <section id="done">
+    <h1>It's a date.</h1>
+    <p class="promise">Kal milte hain. Noodles or dumplings, your pick. I'll text you the time.</p>
+    <p class="ps">ps: you looked exactly like this sticker when you said yes, I'm sure of it.</p>
+  </section>
 </main>
 
 <script>
-  const root = document.getElementById('root'), cookie = document.getElementById('cookie');
-  cookie.addEventListener('click', () => root.classList.add('cracked'));
+  // ---- faint doodles, drawn once ----
+  const dc = document.getElementById('doodles'), dx = dc.getContext('2d');
+  function doodles(){
+    const dpr = devicePixelRatio || 1; dc.width = innerWidth*dpr; dc.height = innerHeight*dpr; dx.setTransform(dpr,0,0,dpr,0,0);
+    dx.clearRect(0,0,innerWidth,innerHeight); dx.strokeStyle = 'rgba(245,241,232,.13)'; dx.lineWidth = 2; dx.lineCap = 'round'; dx.lineJoin='round';
+    let seed = 7; const rnd = () => (seed = (seed*9301+49297) % 233280) / 233280;
+    const kinds = [heart, bowl, dumpling, squiggle, star, chopsticks];
+    const n = Math.round(innerWidth*innerHeight/26000);
+    for (let i=0;i<n;i++){ const x = rnd()*innerWidth, y = rnd()*innerHeight, s = 14 + rnd()*18;
+      dx.save(); dx.translate(x,y); dx.rotate((rnd()-.5)*1.2); kinds[i % kinds.length](s); dx.restore(); }
+    function heart(r){ dx.beginPath(); dx.moveTo(0,r*.35); dx.bezierCurveTo(-r,-r*.4,-r*.45,-r*1.1,0,-r*.45); dx.bezierCurveTo(r*.45,-r*1.1,r,-r*.4,0,r*.35); dx.stroke(); }
+    function bowl(r){ dx.beginPath(); dx.moveTo(-r,0); dx.quadraticCurveTo(0,r*1.3,r,0); dx.closePath(); dx.stroke();
+      dx.beginPath(); dx.moveTo(-r*.6,-r*.5); dx.bezierCurveTo(-r*.3,-r*.9,0,-r*.2,r*.3,-r*.8); dx.stroke(); }
+    function dumpling(r){ dx.beginPath(); dx.moveTo(-r,r*.3); dx.quadraticCurveTo(0,-r*1.1,r,r*.3); dx.quadraticCurveTo(0,r*.6,-r,r*.3); dx.stroke();
+      for (let k=-2;k<=2;k++){ dx.beginPath(); dx.moveTo(k*r*.3,-r*.2); dx.lineTo(k*r*.3+r*.08,-r*.5); dx.stroke(); } }
+    function squiggle(r){ dx.beginPath(); dx.moveTo(-r*1.4,0); for (let k=0;k<4;k++) dx.quadraticCurveTo(-r*1.4+r*.7*k+r*.35, (k%2?-1:1)*r*.6, -r*1.4+r*.7*(k+1), 0); dx.stroke(); }
+    function star(r){ dx.beginPath(); for (let k=0;k<5;k++){ const a=k*4*Math.PI/5-Math.PI/2; dx[k?'lineTo':'moveTo'](Math.cos(a)*r*.6, Math.sin(a)*r*.6); } dx.closePath(); dx.stroke(); }
+    function chopsticks(r){ dx.beginPath(); dx.moveTo(-r*.3,-r*1.2); dx.lineTo(r*.2,r*1.2); dx.moveTo(r*.1,-r*1.2); dx.lineTo(r*.5,r*1.2); dx.stroke(); }
+  }
+  doodles(); addEventListener('resize', doodles);
 
-  const no = document.getElementById('no'), yes = document.getElementById('yes'), hint = document.getElementById('hint');
+  // ---- the hard-to-press No ----
+  const no = document.getElementById('no'), yes = document.getElementById('yes');
   const lines = ["come on, I know thoda autistic hu but dil se accha hu",
                  "itna bhi kya naraz kar diya",
                  "arre ab tak toh samajh jao nahi daba paaoge"];
-  let dodges = 0, size = 1.2;
+  let dodges = 0, size = 1.3;
   const bubble = document.createElement('div'); bubble.className = 'bubble';
   function say(text, x, y){
     bubble.textContent = text; if (!bubble.isConnected) document.body.appendChild(bubble);
     const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
-    let bx = x + no.offsetWidth/2 - bw/2, by = y - bh - 14;
+    let bx = x + no.offsetWidth/2 - bw/2, by = y - bh - 14, below = false;
     bx = Math.max(8, Math.min(bx, innerWidth - bw - 8));
-    if (by < 8) by = y + no.offsetHeight + 14;
+    if (by < 8) { by = y + no.offsetHeight + 14; below = true; }
+    bubble.classList.toggle('below', below);
     bubble.style.left = bx + 'px'; bubble.style.top = by + 'px';
   }
   function dodge(){
     dodges++;
     if (!no.classList.contains('free')) { no.classList.add('free'); document.body.appendChild(no); }
-    const x = Math.random()*(innerWidth - no.offsetWidth - 20) + 10, y = Math.random()*(innerHeight - no.offsetHeight - 60) + 50;
+    const x = Math.random()*(innerWidth - no.offsetWidth - 20) + 10, y = Math.random()*(innerHeight - no.offsetHeight - 120) + 70;
     no.style.left = x + 'px'; no.style.top = y + 'px';
     size = Math.min(size + .16, 2.4); yes.style.fontSize = size + 'rem';
     if (dodges < 4) { say(lines[dodges-1], x, y); return; }
-    // 4th time: the No gives up and becomes another Yes
     say("okay, that one's a yes now too", x, y);
-    no.textContent = 'Yes'; no.id = 'yes2'; no.style.transform = '';
-    no.style.background = 'var(--green)'; no.style.color = '#fff'; no.style.boxShadow = '0 5px 0 var(--green-deep)';
+    no.textContent = 'Yes'; no.id = 'yes2';
+    no.style.background = 'var(--yes)'; no.style.color = 'var(--ink)'; no.style.boxShadow = '0 5px 0 var(--yes-deep)';
     no.removeEventListener('mouseover', dodge); no.removeEventListener('touchstart', dodgeTouch); no.removeEventListener('click', dodgeClick);
     no.addEventListener('click', sayYes);
   }
@@ -169,22 +122,23 @@
   }
   yes.addEventListener('click', sayYes);
 
-  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  // ---- hearts on yes ----
+  const cv = document.getElementById('hearts'), ctx = cv.getContext('2d');
   function fit(){ cv.width = innerWidth*devicePixelRatio; cv.height = innerHeight*devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
   fit(); addEventListener('resize', fit);
-  const cols = ['#E9B44C','#FFF8EE','#4F9A77','#F08A8A'];
+  const cols = ['#FF7EA8','#F5F1E8','#7BD389','#FFD166'];
   let parts = [];
   function burst(){
-    for (let i=0;i<160;i++) parts.push({ x:innerWidth/2, y:innerHeight/2, vx:(Math.random()-.5)*16, vy:-Math.random()*16-4,
+    for (let i=0;i<170;i++) parts.push({ x:innerWidth/2, y:innerHeight/2, vx:(Math.random()-.5)*16, vy:-Math.random()*16-4,
       r:6+Math.random()*10, c:cols[i%cols.length], a:Math.random()*6.28, va:(Math.random()-.5)*.3 });
     requestAnimationFrame(tick);
   }
-  function heart(x,y,r,a,c){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.fillStyle=c; ctx.beginPath();
+  function heartShape(x,y,r,a,c){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.fillStyle=c; ctx.beginPath();
     ctx.moveTo(0,r*.3); ctx.bezierCurveTo(-r,-r*.5,-r*.4,-r*1.1,0,-r*.4); ctx.bezierCurveTo(r*.4,-r*1.1,r,-r*.5,0,r*.3); ctx.fill(); ctx.restore(); }
   function tick(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     parts = parts.filter(p => p.y < innerHeight+30);
-    for (const p of parts){ p.vy += .35; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.a += p.va; heart(p.x,p.y,p.r,p.a,p.c); }
+    for (const p of parts){ p.vy += .35; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.a += p.va; heartShape(p.x,p.y,p.r,p.a,p.c); }
     if (parts.length) requestAnimationFrame(tick);
   }
 </script>
